@@ -73,10 +73,10 @@ int integer(va_list *ap, int field, int prec, char *flag)
 
 	n = va_arg(*ap, int);
 	digit = itoa_base(n, flag, num);
+	if (!prec && !n && flag['.'])
+		digit = 0;
 	len = digit;
 	zero = prec > digit ? prec - digit : 0;
-	if (!prec && !n && flag['.'])
-		len = 0;
 	if (flag['d'] && n < 0)
 		len++;
 	len += zero;
@@ -170,3 +170,8 @@ int ft_printf(const char *format, ...)
 	va_end(ap);
 	return (ret);
 }
+
+// int main()
+// {
+// 	ft_printf("aa%.d", 0);
+// }
