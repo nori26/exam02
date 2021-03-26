@@ -15,11 +15,6 @@ int precision(char **s, va_list *ap, char *flag)
 	flag['.']++;
 	while ('0' <= **s && **s <= '9')
 		prec = prec * 10 + *(*s)++ - '0';
-	if (**s == '*')
-	{
-		prec = va_arg(*ap, int);
-		(*s)++;
-	}
 	return (prec);
 }
 
@@ -30,11 +25,6 @@ int field_width(char **s, va_list *ap)
 	field = 0;
 	while ('0' <= **s && **s <= '9')
 		field = field * 10 + *(*s)++ - '0';
-	if (**s == '*')
-	{
-		field = va_arg(*ap, int);
-		(*s)++;
-	}
 	return (field);
 }
 
@@ -97,8 +87,8 @@ int put_str(char *s, int32_t field, int32_t prec, char *flag)
 	int	len;
 	int	space;
 
-	if (!s)
-		return (put_str("(null)", field, prec, flag));
+	// if (!s)
+	// 	return (put_str("(null)", field, prec, flag));
 	i = 0;
 	while (s[i])
 		i++;
