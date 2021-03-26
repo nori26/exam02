@@ -87,8 +87,8 @@ int put_str(char *s, int32_t field, int32_t prec, char *flag)
 	int	len;
 	int	space;
 
-	// if (!s)
-	// 	return (put_str("(null)", field, prec, flag));
+	if (!s)
+		return (put_str("(null)", field, prec, flag));
 	i = 0;
 	while (s[i])
 		i++;
