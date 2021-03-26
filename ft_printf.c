@@ -75,6 +75,8 @@ int integer(va_list *ap, int field, int prec, char *flag)
 	digit = itoa_base(n, flag, num);
 	len = digit;
 	zero = prec > digit ? prec - digit : 0;
+	if (!prec && !n && flag['.'])
+		len = 0;
 	if (flag['d'] && n < 0)
 		len++;
 	len += zero;
