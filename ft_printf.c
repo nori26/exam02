@@ -127,7 +127,7 @@ int convert(char **s, va_list *ap)
 	if (!**s)
 		return (0);
 	(*s)++;
-	if (**s == '0' && **s == '-')
+	if (**s == '0' || **s == '-')
 		(*s)++;
 	field = field_width(s, ap);
 	prec = precision(s, ap, flag);
