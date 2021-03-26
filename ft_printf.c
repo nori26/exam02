@@ -59,7 +59,7 @@ int itoa_base(int32_t n, char *flag, char *num)
 
 	base = flag['d'] ? 10 : 16;
 	u = n > 0 || flag['x'] ? n : -n;
-	return (nbr_base(n, base, 0, num));
+	return (nbr_base(u, base, 0, num));
 }
 
 int integer(va_list *ap, int field, int prec, char *flag)
@@ -173,5 +173,5 @@ int ft_printf(const char *format, ...)
 
 // int main()
 // {
-// 	ft_printf("%5.d", 0);
+// 	ft_printf("%d", -1);
 // }
