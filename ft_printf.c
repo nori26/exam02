@@ -171,7 +171,7 @@ int ft_printf(const char *format, ...)
 	return (ret);
 }
 
-// int main()
-// {
-// 	ft_printf("aa%.d", 0);
-// }
+int main()
+{
+	ft_printf("%5.d", 0);
+}
