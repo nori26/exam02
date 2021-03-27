@@ -63,7 +63,7 @@ int integer(va_list *ap, char *flag, int field, int prec)
 	int len;
 	int zero;
 	int space;
-	char num[30];
+	char num[30] = {};
 
 	n = va_arg(*ap, int);
 	digit = itoa_base(n, flag, num);
@@ -116,7 +116,7 @@ int convert(char **s, va_list *ap)
 {
 	int field;
 	int prec;
-	char flag[255];
+	char flag[255] ={};
 
 	if (**s != '%')
 		return (0);
@@ -186,7 +186,8 @@ int ft_printf(char *format, ...)
 // 	// }
 // 		// printf("%d\n", ft_printf("%10s\n", "aiueo"));
 // 		// printf("%d\n", ft_printf("%s\n", "aiueo"));
-// 		printf("%d\n", F("%10s\n", "aiueoaiueo"));
-// 		printf("%d\n", F("%.10s\n", "aiueo"));
-// 		printf("%d\n", F("%10.10s\n", "aiueoaiueoa"));
+// 		// printf("%d\n", F("%10s\n", "aiueoaiueo"));
+// 		// printf("%d\n", F("%.10s\n", "aiueo"));
+// 		// printf("%d\n", F("%10.10s\n", "aiueoaiueoa"));
+// 		ft_printf("%.5s%7s", "yo", "boi");
 // }
