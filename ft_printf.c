@@ -36,7 +36,7 @@ void conversion(char **s, char *flag)
 int put_nbr(uint32_t n, char *num, uint32_t base, int len)
 {
 	if (n >= base)
-		len = put_nbr(n, num, base, len);
+		len = put_nbr(n / base, num, base, len);
 	num[len++] = "0123456789abcdef"[n % base];
 	return (len);
 }
@@ -158,3 +158,8 @@ int ft_printf(char *format, ...)
 	va_end(ap);
 	return (ret);
 }
+
+// int main()
+// {
+// 	ft_printf("%7d", 33);
+// }
