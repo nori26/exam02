@@ -52,7 +52,7 @@ int itoa_base(int n, char *flag, char *num)
 	int base;
 
 	base = flag['x'] ? 16 : 10;
-	u = (flag['x'] || n < 0) ? -n : n;
+	u = !flag['x'] && n < 0 ? -n : n;
 	return (put_nbr(u, num, base, 0));
 }
 
