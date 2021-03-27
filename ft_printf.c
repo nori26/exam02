@@ -19,7 +19,7 @@ int precision(char **s, char *flag)
 
 	if (**s != '.')
 		return (0);
-	*(*s)++;
+	(*s)++;
 	flag['.']++;
 	prec = 0;
 	while ('0' <= **s && **s <= '9')
@@ -88,6 +88,7 @@ int put_str(char *s, int field, int prec, char *flag)
 
 	if (!s)
 		return (put_str("(null)", field, prec, flag));
+	i = 0;
 	while (s[i])
 		i++;
 	len = prec < i && flag['.'] ? prec : i;
