@@ -1,12 +1,7 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdarg.h>
 #include <stdint.h>
-#ifndef REAL
-# define F ft_printf
-#else 
-# define F printf
-#endif
+#include <stdio.h>
+#include <stdarg.h>
+#include <unistd.h>
 
 int field_width(char **s)
 {
@@ -24,7 +19,7 @@ int precision(char **s, char *flag)
 
 	if (**s != '.')
 		return (0);
-	(*s)++;
+	*(*s)++;
 	flag['.']++;
 	prec = 0;
 	while ('0' <= **s && **s <= '9')
@@ -38,65 +33,64 @@ void conversion(char **s, char *flag)
 		flag[(int)*(*s)++]++;
 }
 
-int put_nbr(uint32_t u, char *num, int base, int len)
+int put_nbr(uint32_t n, char *num, uint32_t base, int len)
 {
-	if (u >= (uint32_t)base)
-		len = put_nbr(u / base, num, base, len);
-	num[len++] = "0123456789abcdef"[u % base];
+	if (n >= base)
+		len = put_nbr(n, num, base, len);
+	num[len++] = "0123456789abcdef"[n % base];
 	return (len);
 }
 
 int itoa_base(int n, char *flag, char *num)
 {
 	uint32_t u;
-	int base;
+	uint32_t base;
 
-	base = flag['x'] ? 16 : 10;
-	u = !flag['x'] && n < 0 ? -n : n;
+	base = 10 + 6 * flag['x'];
+	u = flag['x'] || n > 0 ? n : -n;
 	return (put_nbr(u, num, base, 0));
 }
 
-int integer(va_list *ap, char *flag, int field, int prec)
+int integer(va_list *ap, int field, int prec, char *flag)
 {
-	int n;
-	int digit;
-	int len;
-	int zero;
-	int space;
-	char num[30] = {};
+	int		n;
+	int		len;
+	int		digit;
+	int		zero;
+	int		space;
+	char	num[30] = {};
 
 	n = va_arg(*ap, int);
 	digit = itoa_base(n, flag, num);
-	if (!prec && flag['.'] && !n)
+	if (!prec && !n && flag['.'])
 		digit = 0;
 	len = digit;
 	zero = prec > len ? prec - len : 0;
 	len += zero;
-	if (n < 0 && !flag['x'])
+	if (flag['d'] && n < 0)
 		len++;
 	space = field > len ? field - len : 0;
 	while (space--)
 		write(1, " ", 1);
-	if (n < 0 && !flag['x'])
+	if (flag['d'] && n < 0)
 		write(1, "-", 1);
 	while (zero--)
 		write(1, "0", 1);
-	write(1, num, digit);
+	write (1, num, digit);
 	return (field > len ? field : len);
 }
 
-int put_str(char *s, char *flag, int field, int prec)
+int put_str(char *s, int field, int prec, char *flag)
 {
+	int i;
 	int space;
 	int len;
-	int i;
 
 	if (!s)
-		return (put_str("(null)", flag, field, prec));
-	i = 0;
+		return (put_str("(null)", field, prec, flag));
 	while (s[i])
 		i++;
-	len = i > prec && flag['.'] ? prec : i;
+	len = prec < i && flag['.'] ? prec : i;
 	space = field > len ? field - len : 0;
 	while (space--)
 		write(1, " ", 1);
@@ -104,32 +98,29 @@ int put_str(char *s, char *flag, int field, int prec)
 	return (field > len ? field : len);
 }
 
-int character(va_list *ap, char *flag, int field, int prec)
+int character(va_list *ap, int field, int prec, char *flag)
 {
 	char *s;
 
 	s = va_arg(*ap, void *);
-	return (put_str(s, flag, field, prec));
+	return (put_str(s, field, prec, flag));
 }
 
 int convert(char **s, va_list *ap)
 {
 	int field;
 	int prec;
-	char flag[255] ={};
+	char flag[255] = {};
 
-	if (**s != '%')
-		return (0);
-	(*s)++;
-	if (**s == ' ' || **s == '0' || **s == '-')
+	while (**s == '%' || **s == '0' || **s == '-' || **s == ' ')
 		(*s)++;
 	field = field_width(s);
 	prec = precision(s, flag);
 	conversion(s, flag);
 	if (flag['d'] || flag['x'])
-		return (integer(ap, flag, field, prec));
-	else if (flag['s'])
-		return (character(ap, flag, field, prec));
+		return (integer(ap, field, prec, flag));
+	if (flag['s'])
+		return (character(ap, field, prec, flag));
 	return (0);
 }
 
@@ -158,36 +149,11 @@ int print_va(va_list *ap, char *s)
 
 int ft_printf(char *format, ...)
 {
+	int ret;
 	va_list ap;
-	int		ret;
 
 	va_start(ap, format);
 	ret = print_va(&ap, format);
 	va_end(ap);
 	return (ret);
 }
-// int main()
-// {
-// 	// int i = 0;
-
-// 	// while (i++ < 100)
-// 	// {
-// 	// 	printf("%d\n", F("%10d\n", i));
-// 	// 	printf("%d\n", F("%10x\n", i));
-// 	// 	printf("%d\n", F("%.10d\n", i));
-// 	// 	printf("%d\n", F("%10.10d\n", i));
-// 	// }
-// 	// while (i-- > -100)
-// 	// {
-// 	// 	printf("%d\n", F("%10d\n", i));
-// 	// 	printf("%d\n", F("%10x\n", i));
-// 	// 	printf("%d\n", F("%.10d\n", i));
-// 	// 	printf("%d\n", F("%10.10d\n", i));
-// 	// }
-// 		// printf("%d\n", ft_printf("%10s\n", "aiueo"));
-// 		// printf("%d\n", ft_printf("%s\n", "aiueo"));
-// 		// printf("%d\n", F("%10s\n", "aiueoaiueo"));
-// 		// printf("%d\n", F("%.10s\n", "aiueo"));
-// 		// printf("%d\n", F("%10.10s\n", "aiueoaiueoa"));
-// 		ft_printf("%.5s%7s", "yo", "boi");
-// }
