@@ -1,3 +1,5 @@
 pft_exam/
 *.o
 a.out
+union.txt
+inter.txt

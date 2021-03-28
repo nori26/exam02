@@ -120,7 +120,7 @@ int convert(char **s, va_list *ap)
 	conversion(s, flag);
 	if (flag['d'] || flag['x'])
 		return (integer(ap, field, prec, flag));
-	if (flag['s'])
+	else if (flag['s'])
 		return (character(ap, field, prec, flag));
 	return (0);
 }
