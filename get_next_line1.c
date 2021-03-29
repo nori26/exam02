@@ -1,7 +1,7 @@
-#include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-
+#include <stdint.h>
 
 size_t ft_strlen(char *s)
 {
@@ -13,25 +13,19 @@ size_t ft_strlen(char *s)
 	return (i);
 }
 
-char *free_set(char *s, char *ret)
-{
-	free(s);
-	return (ret);
-}
-
 char *ft_strchr(char *s, char c)
 {
-	while (*s && *s != (char)c)
+	while (*s && *s != c)
 		s++;
-	return (*s == (char )c ? s : NULL);
+	return (*s == c ? s : NULL);
 }
 
 char *ft_strjoin(char *s1, char *s2)
 {
-	char *ret;
-	char *tmp;
-	size_t len1;
-	size_t len2;
+	char	*ret;
+	char	*tmp;
+	size_t	len1;
+	size_t	len2;
 
 	len1 = 0;
 	len2 = 0;
@@ -50,7 +44,13 @@ char *ft_strjoin(char *s1, char *s2)
 	return (ret);
 }
 
-int join_buf(char **line, char *buf, char *p)
+char *free_set(char *s, char *ret)
+{
+	free(s);
+	return (ret);
+}
+
+int	join_buf(char **line, char *buf, char *p)
 {
 	if (p)
 	{
@@ -67,11 +67,11 @@ int join_buf(char **line, char *buf, char *p)
 	return (0);
 }
 
-int get_next_line(int fd, char **line)
+int	get_next_line(int fd, char **line)
 {
-	int		ret;
-	int64_t len;
-	static char buf[BUFFER_SIZE + 1];
+	int			ret;
+	int64_t		len;
+	static char	buf[BUFFER_SIZE + 1];
 
 	*line = NULL;
 	if ((ret = join_buf(line, buf, ft_strchr(buf, '\n'))))
@@ -84,11 +84,4 @@ int get_next_line(int fd, char **line)
 	}
 	*line = free_set(*line, NULL);
 	return (-1);
-}
-
-int main()
-{
-	char *line;
-
-	get_next_line(-1, &line);
 }
