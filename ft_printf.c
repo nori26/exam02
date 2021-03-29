@@ -72,6 +72,8 @@ int integer(va_list *ap, char *flag, int field, int prec)
 		write(1, " ", 1);
 	if (flag['d'] && n < 0)
 		write(1, "-", 1);
+	while (zero--)
+		write(1, "0", 1);
 	write(1, num, digit);
 	return (field > len ? field : len);
 }
