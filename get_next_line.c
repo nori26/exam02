@@ -1,7 +1,22 @@
-#include <stdint.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdint.h>
+#ifndef BUFFER_SIZE
+# define BUFFER_SIZE 100
+#endif
 
+char *free_set(char *s1, char *s2)
+{
+	free(s1);
+	return (s2);
+}
+
+char *ft_strchr(char *s, char c)
+{
+	while (*s && *s != c)
+		s++;
+	return (*s == c ? s : NULL);
+}
 
 size_t ft_strlen(char *s)
 {
@@ -13,25 +28,12 @@ size_t ft_strlen(char *s)
 	return (i);
 }
 
-char *free_set(char *s, char *ret)
-{
-	free(s);
-	return (ret);
-}
-
-char *ft_strchr(char *s, char c)
-{
-	while (*s && *s != (char)c)
-		s++;
-	return (*s == (char )c ? s : NULL);
-}
-
 char *ft_strjoin(char *s1, char *s2)
 {
-	char *ret;
-	char *tmp;
 	size_t len1;
 	size_t len2;
+	char *ret;
+	char *tmp;
 
 	len1 = 0;
 	len2 = 0;
@@ -63,14 +65,14 @@ int join_buf(char **line, char *buf, char *p)
 		return (1);
 	}
 	else if (!(*line = free_set(*line, ft_strjoin(*line, buf))))
-		return (-1);
+			return (-1);
 	return (0);
 }
 
 int get_next_line(int fd, char **line)
 {
 	int		ret;
-	int64_t len;
+	ssize_t len;
 	static char buf[BUFFER_SIZE + 1];
 
 	*line = NULL;
@@ -85,7 +87,6 @@ int get_next_line(int fd, char **line)
 	*line = free_set(*line, NULL);
 	return (-1);
 }
-
 int main()
 {
 	char *line;

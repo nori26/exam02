@@ -4,9 +4,8 @@
 
 int field_width(char **s)
 {
-	int field;
+	int field = 0;
 
-	field = 0;
 	while ('0' <= **s && **s <= '9')
 		field = field * 10 + *(*s)++ - '0';
 	return (field);
@@ -14,14 +13,13 @@ int field_width(char **s)
 
 int precision(char **s, char *flag)
 {
-	int prec;
+	int prec = 0;
 
 	if (**s != '.')
 		return (0);
-	(*s)++;
 	flag['.']++;
-	prec = 0;
-	while ('0' <= **s && **s <= '9')
+	(*s)++;
+	while ('0' <= **s && <= '9')
 		prec = prec * 10 + *(*s)++ - '0';
 	return (prec);
 }
@@ -32,45 +30,46 @@ void conversion(char **s, char *flag)
 		flag[(int)*(*s)++]++;
 }
 
-int put_nbr(uint32_t u, char *num, uint32_t base, int len)
+int nbr(uint32_t u, uint32_t base, char *num, int len)
 {
 	if (u >= base)
-		len = put_nbr(u / base, num, base, len);
+		len = nbr(u / base, base, num, len);
 	num[len++] = "0123456789abcdef"[u % base];
 	return (len);
 }
 
-int itoa_base(int n, char *flag, char *num)
+int itoa_base(int n, char *num, char *flag)
 {
-	uint32_t base;
 	uint32_t u;
+	uint32_t base;
 
 	base = 10 + 6 * flag['x'];
 	u = flag['x'] || n > 0 ? n : -n;
-	return (put_nbr(u, num, base, 0));
+	return (nbr(u, base, num, 0));
 }
 
-int integer(va_list *ap, char *flag, int field, int prec)
+int integer(va_list *ap, char *flag, int prec, int field)
 {
 	int n;
+	char num[30] = {};
 	int zero;
 	int space;
 	int digit;
 	int len;
-	char num[30] = {};
 
 	n = va_arg(*ap, int);
-	digit = itoa_base(n, flag, num);
-	if (!prec && !n && flag['.'])
+	digit = itoa_base(n, num, flag);
+	if (flag['.'] && !prec && !n)
 		digit = 0;
-	zero = prec > digit ? prec - digit : 0;
-	len = zero + digit;
-	if (flag['d'] && n < 0)
+	len = digit;
+	zero = prec > len ? prec - len : 0;
+	len += zero;
+	if (n < 0 && flag['d'])
 		len++;
 	space = field > len ? field - len : 0;
 	while (space--)
 		write(1, " ", 1);
-	if (flag['d'] && n < 0)
+	if (n < 0 && flag['d'])
 		write(1, "-", 1);
 	while (zero--)
 		write(1, "0", 1);
@@ -78,18 +77,17 @@ int integer(va_list *ap, char *flag, int field, int prec)
 	return (field > len ? field : len);
 }
 
-int put_str(char *s, char *flag, int field, int prec)
+int put_str(char *s, int prec, int field, char *flag)
 {
-	int i;
-	int len;
 	int space;
+	int len;
 
 	if (!s)
-		return (put_str("(null)", flag, field, prec));
-	i = 0;
-	while (s[i])
-		i++;
-	len = prec < i && flag['.'] ? prec : i;
+		return (put_str("(null)", prec, field, flag));
+	len = 0;
+	while (s[len])
+		len++;
+	len = flag['.'] && prec < len ? prec : len;
 	space = field > len ? field - len : 0;
 	while (space--)
 		write(1, " ", 1);
@@ -97,62 +95,61 @@ int put_str(char *s, char *flag, int field, int prec)
 	return (field > len ? field : len);
 }
 
-int character(va_list *ap, char *flag, int field, int prec)
+int character(va_list *ap, char *flag, int prec, int field)
 {
 	char *s;
 
 	s = va_arg(*ap, void *);
-	return (put_str(s, flag, field, prec));
+	return (put_str(s, prec, field, flag));
 }
 
-int convert(va_list *ap, char **s)
+int convert(char **s, va_list *ap)
 {
 	int field;
 	int prec;
 	char flag[255] = {};
 
-	while (**s == '%' || **s == '0' || **s == ' ' || **s == '-')
+	while (**s == '%' || **s == ' ' || **s == '-' || **s == '0')
 		(*s)++;
 	field = field_width(s);
 	prec = precision(s, flag);
 	conversion(s, flag);
 	if (flag['d'] || flag['x'])
-		return (integer(ap, flag, field, prec));
+		return (integer(ap, flag, prec, field));
 	else if (flag['s'])
-		return (character(ap, flag, field, prec));
+		return (character(ap, flag, prec, field));
 	return (0);
 }
 
 int till_per(char **s)
 {
-	char *tmp;
+	char *tmp = *s;
 
-	tmp = *s;
 	while (**s && **s != '%')
 		(*s)++;
 	return (write(1, tmp, *s - tmp));
 }
 
-int print_va(va_list *ap, char *format)
+int print_va(va_list *ap, char *fmt)
 {
 	int ret;
-
+	
 	ret = 0;
-	while (*format)
+	while (*fmt)
 	{
-		ret += till_per(&format);
-		ret += convert(ap, &format);
+		ret += till_per(&fmt);
+		ret += convert(&fmt, ap);
 	}
 	return (ret);
 }
 
-int ft_printf(char *format, ...)
+int ft_printf(char *fmt, ...)
 {
 	va_list ap;
-	int		ret;
+	int ret;
 
-	va_start(ap, format);
-	ret = print_va(&ap, format);
+	va_start(ap, fmt);
+	ret = print_va(&ap, fmt);
 	va_end(ap);
 	return (ret);
 }
