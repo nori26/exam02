@@ -19,7 +19,7 @@ int precision(char **s, char *flag)
 		return (0);
 	flag['.']++;
 	(*s)++;
-	while ('0' <= **s && <= '9')
+	while ('0' <= **s && **s <= '9')
 		prec = prec * 10 + *(*s)++ - '0';
 	return (prec);
 }
