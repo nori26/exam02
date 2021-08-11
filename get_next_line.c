@@ -243,10 +243,7 @@ static int	make_line(char **line, t_list *end, t_list **save, char *n_ptr)
 		*save = end;
 	}
 	else
-	{
-		// printf("%p\n", end);
 		exit_gnl(&((t_buf *)((end)->content))->start, save);
-	}
 	return (!!n_ptr);
 }
 
