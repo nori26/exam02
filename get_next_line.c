@@ -263,6 +263,36 @@ static int	save_to_line(char **line, t_list **save, char *n_ptr)
 	return (1);
 }
 
+void	lst_set_value(t_buf *content, size_t len, t_list *start)
+{
+	content->total_len = len;
+	content->start = start;
+}
+
+int	gnl(int fd, char **line, t_list **save, t_list **lst)
+{
+	t_buf			*content;
+	char			*n_ptr;
+
+	while (1)
+	{
+		content = (*lst)->content;
+		content->len = read(fd, content->buf, BUFFER_SIZE);
+		if (content->len == -1)
+			break ;
+		if (!content->len)
+			return (make_line(line, *lst, save, NULL));
+		content->total_len += content->len;
+		if (ft_setptr(&n_ptr, ft_memchr(content->buf, '\n', content->len)))
+			return (make_line(line, *lst, save, n_ptr));
+		if (!(*lst)->next && lst_init(&((*lst)->next), content->start))
+			break ;
+		*lst = (*lst)->next;
+		lst_set_value((*lst)->content, content->total_len, content->start);
+	}
+	return (exit_gnl(&((t_buf *)((*lst)->content))->start, save));
+}
+
 int	gnl_init(t_list **save, t_list **lst, char **line)
 {
 	t_buf	*content;
@@ -283,11 +313,8 @@ int	gnl_init(t_list **save, t_list **lst, char **line)
 			return (save_to_line(line, save, n_ptr));
 		*lst = ((t_buf *)((*save)->content))->start;
 	}
-	if (!*save || !*lst)
-	{
-		if (lst_init(lst, NULL))
-			return (-1);
-	}
+	if ((!*save || !*lst) && lst_init(lst, NULL))
+		return (-1);
 	return (0);
 }
 
@@ -295,31 +322,11 @@ int	get_next_line(int fd, char **line)
 {
 	static 	t_list	*save;
 	t_list			*lst;
-	t_buf			*content;
-	char			*n_ptr;
 	int				ret;
 
 	ret = gnl_init(&save, &lst, line);
 	if (ret)
 		return (ret);
-	((t_buf *)(lst->content))->start = lst;
-	((t_buf *)(lst->content))->total_len = 0;
-	while (1)
-	{
-		content = lst->content;
-		content->len = read(fd, content->buf, BUFFER_SIZE);
-		if (content->len == -1)
-			break ;
-		if (!content->len)
-			return (make_line(line, lst, &save, NULL));
-		content->total_len += content->len;
-		if (ft_setptr(&n_ptr, ft_memchr(content->buf, '\n', content->len)))
-			return (make_line(line, lst, &save, n_ptr));
-		if (!lst->next && lst_init(&(lst->next), content->start))
-			break ;
-		lst = lst->next;
-		((t_buf *)(lst->content))->total_len = content->total_len;
-		((t_buf *)(lst->content))->start = content->start;
-	}
-	return (exit_gnl(&((t_buf *)(lst->content))->start, &save));
+	lst_set_value(lst->content, 0, lst);
+	return (gnl(fd, line, &save, &lst));
 }
