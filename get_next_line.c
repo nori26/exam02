@@ -269,10 +269,10 @@ void	lst_set_value(t_buf *content, size_t len, t_list *start)
 	content->start = start;
 }
 
-int	gnl(int fd, char **line, t_list **save, t_list **lst)
+int	read_and_makeline(int fd, char **line, t_list **save, t_list **lst)
 {
-	t_buf			*content;
-	char			*n_ptr;
+	char	*n_ptr;
+	t_buf	*content;
 
 	while (1)
 	{
@@ -328,5 +328,5 @@ int	get_next_line(int fd, char **line)
 	if (ret)
 		return (ret);
 	lst_set_value(lst->content, 0, lst);
-	return (gnl(fd, line, &save, &lst));
+	return (read_and_makeline(fd, line, &save, &lst));
 }
